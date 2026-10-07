@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <p class="eyebrow">A smarter way to shop</p>
+
+        <h1>
+            Choose a category.<br>
+            <em>Find what you love.</em>
+        </h1>
+
+        <p>
+            Browse categories, explore products and use the
+            shopping assistant whenever you need help.
+        </p>
+
+        <a class="primary" href="#categories">
+            Browse categories
+        </a>
+    </div>
+
+    <div class="orb">
+        AI<br>
+        <small>SHOPPING</small>
+    </div>
+</section>
+
+
+<section id="categories" class="section">
+
+    <div class="section-head">
+
+        <div>
+            <p class="eyebrow">SHOP BY CATEGORY</p>
+            <h2>Explore our collections</h2>
+        </div>
+
+        <form class="search" method="get">
+            <input
+                type="text"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search all products"
+            >
+
+            <button type="submit">
+                Search
+            </button>
+        </form>
+
+    </div>
+
+
+    <!-- MAIN CATEGORIES -->
+
+    <div class="shop-category-grid">
+
+        {% for category in categories %}
+
+            <a
+                class="shop-category-card"
+                href="{% url 'category_products' category.slug %}"
+            >
+
+                <div class="shop-category-image">
+
+                    {% if category.image %}
+
+                        <img
+                            src="{{ category.image.url }}"
+                            alt="{{ category.name }}"
+                        >
+
+                    {% else %}
+
+                        <span>
+                            {{ category.name|slice:":1"|upper }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="shop-category-content">
+
+                    <div>
+                        <h3>{{ category.name }}</h3>
+
+                        <p>
+                            {{ category.active_product_count }}
+                            product{{ category.active_product_count|pluralize }}
+                        </p>
+                    </div>
+
+                    <strong class="shop-category-arrow">
+                        →
+                    </strong>
+
+                </div>
+
+            </a>
+
+        {% empty %}
+
+            <div class="category-empty">
+                No categories have been added yet.
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+{% if q %}
+
+<section class="section">
+
+    <div class="section-head">
+        <div>
+            <p class="eyebrow">SEARCH RESULTS</p>
+            <h2>Results for "{{ q }}"</h2>
+        </div>
+    </div>
+
+
+    <div class="grid">
+
+        {% for product in products %}
+
+            <article class="card">
+
+                <a href="{% url 'product_detail' product.slug %}">
+
+                    {% if product.image %}
+
+                        <img
+                            src="{{ product.image.url }}"
+                            alt="{{ product.name }}"
+                        >
+
+                    {% else %}
+
+                        <div class="placeholder">
+                            {{ product.name|slice:":1"|upper }}
+                        </div>
+
+                    {% endif %}
+
+                </a>
+
+
+                <div class="card-body">
+
+                    <small>
+                        {{ product.category.name }}
+
+                        {% if product.brand %}
+                            · {{ product.brand }}
+                        {% endif %}
+                    </small>
+
+                    <h3>{{ product.name }}</h3>
+
+                    <p>
+                        {{ product.description|truncatewords:17 }}
+                    </p>
+
+
+                    <div class="price-row">
+
+                        <strong>
+                            ₹{{ product.price }}
+                        </strong>
+
+                        <form
+                            method="post"
+                            action="{% url 'add_cart' product.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="next"
+                                value="{{ request.get_full_path }}"
+                            >
+
+                            <button
+                                type="submit"
+                                {% if not product.stock and not product.variants.exists %}
+                                    disabled
+                                {% endif %}
+                            >
+                                Add to cart
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <p>No matching products were found.</p>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

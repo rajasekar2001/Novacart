@@ -1,0 +1,12 @@
+Django==4.2.24
+Pillow==11.3.0
+requests==2.32.5
+beautifulsoup4==4.13.5
+PyPDF2==3.0.1
+python-docx==1.2.0
+groq==0.31.1
+psycopg2-binary==2.9.10
+gunicorn==23.0.0
+python-dotenv==1.1.1
+selenium==4.49.0
+webdriver-manager==4.0.2

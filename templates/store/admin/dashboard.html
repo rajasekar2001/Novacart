@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard · NovaCart{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">{% endblock %}
+
+{% block content %}
+<div class="admin-shell" id="admin-app"
+     data-categories-url="{% url 'admin_categories' %}"
+     data-products-url="{% url 'admin_products' %}"
+     data-ai-product-url="{% url 'admin_ai_product_draft' %}"
+     data-ai-category-url="{% url 'admin_ai_category_plan' %}"
+     data-quality-url="{% url 'admin_quality_insights' %}"
+     data-copilot-url="{% url 'admin_ai_copilot' %}"
+     data-inventory-url="{% url 'admin_inventory' %}">
+  <aside class="admin-sidebar">
+    <div class="admin-mark">NC</div>
+    <div><strong>NovaCart Admin</strong><small>Commerce control centre</small></div>
+    <nav class="admin-nav" aria-label="Dashboard sections">
+      <button class="active" data-panel="overview">Overview</button>
+      <button data-panel="categories">Categories</button>
+      <button data-panel="products">Products</button>
+      <button data-panel="inventory">Inventory</button>
+      <a href="{% url 'ingest' %}">AI Knowledge</a>
+      <a href="/admin/">Advanced Admin</a>
+      <a href="{% url 'home' %}">View Store</a>
+    </nav>
+  </aside>
+
+  <section class="admin-workspace">
+    <div class="admin-topbar">
+      <div><p class="admin-kicker">PRIVATE ADMIN AREA</p><h1>Good day, {{ request.user.first_name|default:request.user.username }}</h1></div>
+      <div class="admin-user"><span>{{ request.user.username|slice:':1'|upper }}</span><div><b>{{ request.user.username }}</b><small>Staff account</small></div></div>
+    </div>
+
+    <div class="admin-alert" id="admin-alert" role="status" hidden></div>
+
+    <section class="admin-panel active" data-panel-content="overview">
+      <div class="metric-grid">
+        <article><small>Revenue received</small><strong>₹{{ stats.revenue }}</strong><span>Paid orders</span></article>
+        <article><small>Orders</small><strong>{{ stats.orders }}</strong><span>{{ stats.pending_orders }} require attention</span></article>
+        <article><small>Active products</small><strong>{{ stats.active_products }}</strong><span>{{ stats.categories }} categories</span></article>
+        <article><small>Low stock</small><strong>{{ stats.low_stock_products }}</strong><span>Five units or fewer</span></article>
+      </div>
+      <div class="admin-columns ai-admin-grid">
+        <article class="admin-card"><div class="card-title"><div><p class="admin-kicker">AI COPILOT</p><h2>Ask about your catalog</h2></div></div><form id="ai-copilot-form" class="admin-form"><label>Ask a question<input name="query" placeholder="Show products with low stock" required></label><button class="admin-primary">Ask AI Copilot</button></form><div id="ai-copilot-answer" class="ai-draft-summary" hidden></div></article>
+        <article class="admin-card"><div class="card-title"><div><p class="admin-kicker">AI QUALITY CHECK</p><h2>Catalog health</h2></div><button id="refresh-quality" type="button">Refresh</button></div><div id="quality-summary">Loading quality checks…</div><div id="quality-products" class="quality-list"></div></article>
+      </div>
+      <div class="admin-columns">
+        <article class="admin-card"><div class="card-title"><div><p class="admin-kicker">RECENT ACTIVITY</p><h2>Recent orders</h2></div><a href="/admin/store/order/">Manage</a></div>
+          <div class="admin-table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>{% for order in recent_orders %}<tr><td>#{{ order.id }}</td><td>{{ order.full_name }}</td><td>₹{{ order.total }}</td><td><span class="status">{{ order.get_status_display }}</span></td></tr>{% empty %}<tr><td colspan="4">No orders yet.</td></tr>{% endfor %}</tbody></table></div>
+        </article>
+        <article class="admin-card"><div class="card-title"><div><p class="admin-kicker">INVENTORY</p><h2>Low-stock alerts</h2></div><button data-open-panel="inventory">Adjust</button></div>
+          <div class="stock-list">{% for product in low_stock %}<div><span>{{ product.name }}<small>{{ product.category.name }}</small></span><strong>{{ product.stock }}</strong></div>{% empty %}<p>All products have healthy stock.</p>{% endfor %}</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="admin-panel" data-panel-content="categories">
+      <div class="panel-heading"><div><p class="admin-kicker">CATALOG STRUCTURE</p><h2>Categories</h2><p>Create “Jewels” first, then assign products to it.</p></div><button class="admin-primary" id="new-category">+ New category</button></div>
+      <article class="admin-card ai-category-card"><div class="card-title"><div><p class="admin-kicker">AI CATEGORY ASSISTANT</p><h3>Plan categories & specification fields</h3></div></div><form id="ai-category-form" class="admin-form"><label>What do you want to sell?<textarea name="description" rows="3" placeholder="Smartphones, tablets and mobile accessories" required></textarea></label><button class="admin-primary">Suggest category plan</button></form><div id="ai-category-result" class="ai-draft-summary" hidden></div></article>
+      <div class="admin-columns form-layout">
+        <form
+  class="admin-card admin-form"
+  id="category-form"
+  enctype="multipart/form-data"
+>
+  <input type="hidden" name="category_id">
+
+  <h3 id="category-form-title">
+    Add category
+  </h3>
+
+  <label>
+    Name
+    <input
+      name="name"
+      placeholder="Jewels"
+      required
+    >
+  </label>
+
+  <label>
+    Slug
+    <input
+      name="slug"
+      placeholder="jewels"
+    >
+  </label>
+
+  <label>
+    Parent category
+    <select name="parent_id">
+      <option value="">No parent</option>
+    </select>
+  </label>
+
+  <label>
+    Category image
+    <input
+      name="image"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+    >
+  </label>
+
+  <small id="category-image-status">
+    Upload a JPG, PNG or WebP image.
+  </small>
+
+  <label class="check">
+    <input
+      type="checkbox"
+      name="active"
+      checked
+    >
+    Active
+  </label>
+
+  <button class="admin-primary" type="submit">
+    Save category
+  </button>
+</form>
+        <article class="admin-card"><div class="table-tools"><input id="category-search" placeholder="Search categories"></div><div class="admin-table-wrap"><table><thead><tr><th>Image</th><th>Category</th><th>Parent</th><th>Products</th><th>Status</th><th></th></tr></thead><tbody id="category-rows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></article>
+      </div>
+    </section>
+
+    <section class="admin-panel" data-panel-content="products">
+      <div class="panel-heading"><div><p class="admin-kicker">CATALOG</p><h2>Products</h2><p>Every product must belong to one active category.</p></div><button class="admin-primary" id="new-product">+ New product</button></div>
+      <article class="admin-card ai-ingest-card">
+        <div class="card-title"><div><p class="admin-kicker">AI-ASSISTED INGESTION</p><h3>Generate a reviewable product draft</h3></div></div>
+        <p>Paste supplier/product notes and optionally attach an image. AI will suggest structured fields, match an existing category, and flag missing data. Nothing is published automatically.</p>
+        <form id="ai-product-form" enctype="multipart/form-data">
+          <label>Product / supplier information<textarea name="notes" rows="5" placeholder="Example: Nova 22K gold necklace, SKU JWL-100, ₹45,000, stock 3, weight 15g..."></textarea></label>
+          <label>Product image (optional; requires GROQ_VISION_MODEL)<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          <button class="admin-primary" type="submit">Analyze with AI</button>
+        </form>
+        <div id="ai-draft-summary" class="ai-draft-summary" hidden></div>
+      </article>
+      <div class="admin-columns form-layout">
+        <form class="admin-card admin-form" id="product-form" enctype="multipart/form-data"><input type="hidden" name="product_id"><input type="hidden" name="ingestion_source" value="manual"><input type="hidden" name="ai_confidence"><input type="hidden" name="ai_missing_fields"><input type="hidden" name="ai_warnings"><h3 id="product-form-title">Add product</h3><div class="form-grid"><label>Product name<input name="name" placeholder="Gold Necklace" required></label><label>Category<select name="category_id" required><option value="">Select category</option></select></label><label>SKU<input name="sku" placeholder="JWL-GN-001"></label><label>Brand<input name="brand" placeholder="Nova Jewels"></label><label>Price<input name="price" type="number" min="0" step="0.01" required></label><label>Base stock<input name="stock" type="number" min="0" required></label></div><label>Description<textarea name="description" rows="3" required></textarea></label><label>Specifications (JSON)<textarea name="specifications" rows="3" placeholder='{"material":"22K Gold","weight":"15 g"}'></textarea></label><label>Image<input name="image" type="file" accept="image/*"></label><label>Catalog status<select name="catalog_status"><option value="published">Published</option><option value="draft">Draft — review required</option></select></label><div class="checks"><label class="check"><input type="checkbox" name="active" checked> Visible in storefront</label><label class="check"><input type="checkbox" name="featured"> Featured</label></div><button class="admin-primary">Save product</button></form>
+        <article class="admin-card"><div class="table-tools"><input id="product-search" placeholder="Search name, SKU, brand"><select id="product-category-filter"><option value="">All categories</option></select></div><div class="admin-table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead><tbody id="product-rows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></article>
+      </div>
+      <article class="admin-card variant-card"><div class="card-title"><div><p class="admin-kicker">OPTIONAL</p><h3>Product variants</h3></div></div><form class="variant-form" id="variant-form"><input type="hidden" name="variant_id"><label>Product<select name="product_id" required><option value="">Select product</option></select></label><label>Variant name<input name="name" placeholder="18 inch / Rose Gold" required></label><label>SKU<input name="sku" required></label><label>Price override<input name="price" type="number" min="0" step="0.01"></label><label>Stock<input name="stock" type="number" min="0" value="0" required></label><label>Options JSON<input name="options" placeholder='{"size":"18 inch"}'></label><label class="check"><input type="checkbox" name="active" checked> Active</label><button class="admin-primary">Save variant</button></form></article>
+    </section>
+
+    <section class="admin-panel" data-panel-content="inventory">
+      <div class="panel-heading"><div><p class="admin-kicker">STOCK CONTROL</p><h2>Inventory</h2><p>Add or subtract stock; every change is stored in the audit history.</p></div></div>
+      <div class="admin-columns form-layout">
+        <form class="admin-card admin-form" id="inventory-form"><h3>Adjust inventory</h3><label>Product<select name="product_id" required><option value="">Select product</option></select></label><label>Variant<select name="variant_id"><option value="">Base product stock</option></select></label><label>Quantity change<input name="quantity_change" type="number" placeholder="Use -2 or 10" required></label><label>Reason<select name="reason"><option value="new_purchase">New purchase</option><option value="manual_adjustment">Manual adjustment</option><option value="damaged">Damaged item</option><option value="returned">Customer return</option></select></label><label>Note<textarea name="note" rows="3"></textarea></label><button class="admin-primary">Update stock</button></form>
+        <article class="admin-card"><div class="table-tools"><input id="inventory-search" placeholder="Search inventory"></div><div class="admin-table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Base stock</th><th>Total available</th></tr></thead><tbody id="inventory-rows"><tr><td colspan="4">Loading...</td></tr></tbody></table></div></article>
+      </div>
+    </section>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}<script src="{% static 'js/admin_dashboard.js' %}"></script>{% endblock %}

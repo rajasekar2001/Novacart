@@ -1,0 +1,571 @@
+/* =========================================================
+   NOVACART CATEGORY / SUBCATEGORY SYSTEM
+========================================================= */
+
+
+/* =========================================================
+   CATEGORY PAGE CONTAINER
+========================================================= */
+
+.category-browser {
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BREADCRUMB
+========================================================= */
+
+.shop-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 9px;
+
+    width: 100%;
+
+    margin: 0 0 28px;
+
+    font-size: 14px;
+
+    box-sizing: border-box;
+}
+
+
+.shop-breadcrumb a {
+    color: #145743;
+
+    text-decoration: none;
+}
+
+
+.shop-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+
+.shop-breadcrumb span {
+    color: #87918c;
+}
+
+
+.shop-breadcrumb strong {
+    color: #17211e;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   CATEGORY PAGE TITLE
+========================================================= */
+
+.category-title-area {
+    width: 100%;
+
+    margin: 0 0 32px;
+
+    box-sizing: border-box;
+}
+
+
+.category-title-area .eyebrow {
+    margin-bottom: 8px;
+}
+
+
+.category-title-area h1 {
+    margin: 0 0 12px;
+
+    color: #17211e;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(38px, 5vw, 60px);
+
+    font-weight: 700;
+
+    line-height: 1.05;
+}
+
+
+.category-title-area > p:last-child {
+    margin: 0;
+
+    color: #6f7c76;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   CATEGORY GRID
+
+   Desktop = 4 cards
+========================================================= */
+
+.shop-category-grid {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr)) !important;
+
+    align-items: stretch;
+
+    gap: 24px;
+
+    width: 100%;
+
+    margin: 28px 0 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CATEGORY CARD
+========================================================= */
+
+.shop-category-card {
+    position: relative;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 100%;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #d8d8d0 !important;
+
+    color: #17211e !important;
+
+    text-decoration: none !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.shop-category-card:link,
+.shop-category-card:visited,
+.shop-category-card:hover,
+.shop-category-card:active {
+    color: #17211e;
+
+    text-decoration: none;
+}
+
+
+.shop-category-card:hover {
+    transform: translateY(-4px);
+
+    border-color: #145743 !important;
+
+    box-shadow:
+        0 14px 32px rgba(23, 33, 30, 0.12);
+}
+
+
+/* =========================================================
+   CATEGORY IMAGE CONTAINER
+========================================================= */
+
+.shop-category-image {
+    position: relative !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+    height: 220px !important;
+
+    min-height: 220px !important;
+    max-height: 220px !important;
+
+    flex: 0 0 220px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #dce9df;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   CATEGORY IMAGE
+
+   These !important values prevent older generic
+   img CSS from making the image huge.
+========================================================= */
+
+.shop-category-card .shop-category-image img {
+    position: static !important;
+
+    display: block !important;
+
+    width: 100% !important;
+    height: 220px !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    max-width: 100% !important;
+    max-height: 220px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+
+    object-fit: cover !important;
+    object-position: center center !important;
+
+    transform: none !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   CATEGORY IMAGE PLACEHOLDER
+========================================================= */
+
+.shop-category-placeholder {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+    height: 220px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #dce9df !important;
+
+    color: #145743 !important;
+
+    font-family: Georgia, "Times New Roman", serif !important;
+
+    font-size: 64px !important;
+    font-weight: 400 !important;
+
+    line-height: 1 !important;
+
+    text-decoration: none !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   CATEGORY CARD BOTTOM
+========================================================= */
+
+.shop-category-content {
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 15px;
+
+    width: 100%;
+
+    min-height: 92px;
+
+    padding: 16px 18px !important;
+
+    background: #ffffff !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   CATEGORY INFORMATION
+========================================================= */
+
+.shop-category-info {
+    flex: 1 1 auto;
+
+    min-width: 0;
+}
+
+
+.shop-category-info h3 {
+    margin: 0 0 6px !important;
+
+    padding: 0 !important;
+
+    color: #17211e !important;
+
+    font-family: Georgia, "Times New Roman", serif !important;
+
+    font-size: 22px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.15 !important;
+
+    text-decoration: none !important;
+
+    overflow-wrap: break-word;
+}
+
+
+.shop-category-info p {
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    color: #6f7c76 !important;
+
+    font-size: 13px !important;
+
+    line-height: 1.4 !important;
+
+    text-decoration: none !important;
+}
+
+
+/* =========================================================
+   CATEGORY ARROW
+========================================================= */
+
+.shop-category-arrow {
+    display: inline-block;
+
+    flex: 0 0 auto;
+
+    margin-left: auto;
+
+    color: #145743 !important;
+
+    font-size: 24px !important;
+
+    font-weight: 400 !important;
+
+    line-height: 1 !important;
+
+    text-decoration: none !important;
+}
+
+
+/* =========================================================
+   PRODUCT SECTION TITLE
+========================================================= */
+
+.category-products-title {
+    width: 100%;
+
+    margin: 60px 0 25px;
+}
+
+
+.category-products-title .eyebrow {
+    margin-bottom: 7px;
+}
+
+
+.category-products-title h2 {
+    margin: 0;
+
+    color: #17211e;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 38px;
+
+    line-height: 1.15;
+}
+
+
+/* =========================================================
+   PRODUCT IMAGE
+========================================================= */
+
+.product-image-link {
+    display: block;
+
+    width: 100%;
+
+    overflow: hidden;
+}
+
+
+.product-image-link img {
+    display: block;
+
+    width: 100%;
+
+    object-fit: cover;
+
+    object-position: center;
+}
+
+
+/* =========================================================
+   EMPTY CATEGORY
+========================================================= */
+
+.category-empty {
+    width: 100%;
+
+    margin: 35px 0 0;
+
+    padding: 50px 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #d8d8d0;
+
+    text-align: center;
+
+    box-sizing: border-box;
+}
+
+
+.category-empty h3 {
+    margin: 0 0 10px;
+
+    color: #17211e;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 30px;
+}
+
+
+.category-empty p {
+    margin: 0;
+
+    color: #6f7c76;
+}
+
+
+/* =========================================================
+   RESPONSIVE CATEGORY GRID
+========================================================= */
+
+
+/* DESKTOP:
+   4 categories per row
+*/
+
+@media (min-width: 1101px) {
+
+    .shop-category-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr)) !important;
+    }
+
+}
+
+
+/* SMALL LAPTOP / TABLET:
+   3 categories per row
+*/
+
+@media (max-width: 1100px) {
+
+    .shop-category-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr)) !important;
+    }
+
+}
+
+
+/* TABLET:
+   2 categories per row
+*/
+
+@media (max-width: 800px) {
+
+    .shop-category-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+
+}
+
+
+/* MOBILE:
+   1 category per row
+*/
+
+@media (max-width: 520px) {
+
+    .shop-category-grid {
+        grid-template-columns:
+            1fr !important;
+
+        gap: 18px;
+    }
+
+
+    .shop-category-image {
+        height: 230px !important;
+
+        min-height: 230px !important;
+        max-height: 230px !important;
+
+        flex-basis: 230px !important;
+    }
+
+
+    .shop-category-card .shop-category-image img {
+        height: 230px !important;
+
+        max-height: 230px !important;
+    }
+
+
+    .shop-category-placeholder {
+        height: 230px !important;
+    }
+
+
+    .shop-category-content {
+        min-height: 85px;
+
+        padding: 15px 16px !important;
+    }
+
+
+    .shop-category-info h3 {
+        font-size: 21px !important;
+    }
+
+}

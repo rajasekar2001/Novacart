@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Checkout · NovaCart{% endblock %}
+{% block content %}
+<section class="narrow checkout-page" data-pincode-url-template="{% url 'pincode_lookup' 'PINCODE' %}">
+  <p class="eyebrow">FINAL STEP</p><h1>Checkout</h1>
+  <div class="checkout-summary">{% for item in items %}<p>{{ item.product.name }}{% if item.variant %} - {{ item.variant.name }}{% endif %} × {{ item.quantity }} <b>₹{{ item.subtotal }}</b></p>{% endfor %}<h3>Total: ₹{{ total }}</h3></div>
+  <form class="panel form checkout-form" method="post" id="checkout-form">
+    {% csrf_token %}{{ form.non_field_errors }}
+    <div class="checkout-fields">
+      <label>Full name{{ form.full_name }}{{ form.full_name.errors }}</label>
+      <label>Email{{ form.email }}{{ form.email.errors }}</label>
+      <label>Phone{{ form.phone }}{{ form.phone.errors }}</label>
+      <label>Pincode<div class="pincode-control">{{ form.pincode }}<button type="button" id="lookup-pincode">Find location</button></div>{{ form.pincode.errors }}<small id="pincode-status">Enter a six-digit Indian pincode.</small></label>
+      <label>Country{{ form.country }}{{ form.country.errors }}</label>
+      <label>State{{ form.state }}{{ form.state.errors }}</label>
+      <label>City{{ form.city }}{{ form.city.errors }}</label>
+      <label>Shipping method{{ form.shipping_method }}{{ form.shipping_method.errors }}</label>
+      <label class="full-field">House, street and delivery address{{ form.address }}{{ form.address.errors }}</label>
+    </div>
+    <p class="fine-print">City, state and country are automatically filled from the pincode. You can correct them manually if lookup is unavailable.</p>
+    <button class="primary">Place order</button>
+  </form>
+</section>
+{% endblock %}
+{% block extra_scripts %}<script src="{% static 'js/checkout.js' %}"></script>{% endblock %}

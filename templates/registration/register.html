@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Register · NovaCart{% endblock %}
+
+{% block content %}
+<section class="narrow">
+  <p class="eyebrow">CUSTOMER REGISTRATION</p>
+  <h1>Create your account</h1>
+
+  <p>
+    Register to add products to your cart, place orders,
+    and access your Customer Dashboard.
+  </p>
+
+  <form method="post" class="panel form">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    {% if next %}
+      <input type="hidden" name="next" value="{{ next }}">
+    {% endif %}
+
+    <button class="primary" type="submit">Create account</button>
+  </form>
+
+  <p>
+    Already have an account?
+    <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+      Sign in
+    </a>
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Customer Dashboard · NovaCart{% endblock %}
+{% block content %}
+<section class="narrow customer-dashboard">
+  <p class="eyebrow">CUSTOMER ACCOUNT</p>
+  <h1>Welcome{% if user.first_name %}, {{ user.first_name }}{% elif user.username %}, {{ user.username }}{% endif %}</h1>
+  <p>Manage your shopping cart and keep track of your NovaCart orders.</p>
+
+  <div class="dashboard-cards">
+    <article class="panel"><small>Cart items</small><h2>{{ cart_count }}</h2><p>Current total: <strong>₹{{ cart_total }}</strong></p><a class="primary" href="{% url 'cart' %}">View cart</a></article>
+    <article class="panel"><small>Total orders</small><h2>{{ order_count }}</h2><p>Review your purchases and delivery status.</p><a class="primary" href="{% url 'my_orders' %}">My orders</a></article>
+  </div>
+
+  <div class="panel recent-orders">
+    <h2>Recent orders</h2>
+    {% for order in orders %}
+      <div class="cart-row"><div><b>Order #{{ order.id }}</b><small>{{ order.created_at|date:"d M Y" }} · {{ order.get_status_display }}</small></div><strong>₹{{ order.total }}</strong><a href="{% url 'order_detail' order.public_id %}">View</a></div>
+    {% empty %}
+      <div class="empty">You have not placed an order yet. <a href="{% url 'home' %}">Start shopping</a>.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

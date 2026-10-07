@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="section category-browser">
+
+    <!-- =====================================================
+         BREADCRUMB
+    ====================================================== -->
+
+    <nav class="shop-breadcrumb">
+
+        <a href="{% url 'home' %}">
+            Home
+        </a>
+
+        {% for item in breadcrumbs %}
+
+            <span>›</span>
+
+            {% if forloop.last %}
+
+                <strong>
+                    {{ item.name }}
+                </strong>
+
+            {% else %}
+
+                <a href="{% url 'category_products' item.slug %}">
+                    {{ item.name }}
+                </a>
+
+            {% endif %}
+
+        {% endfor %}
+
+    </nav>
+
+
+    <!-- =====================================================
+         CURRENT CATEGORY
+    ====================================================== -->
+
+    <div class="category-title-area">
+
+        <p class="eyebrow">
+            SHOP BY CATEGORY
+        </p>
+
+        <h1>
+            {{ category.name }}
+        </h1>
+
+        {% if subcategories %}
+
+            <p>
+                Choose a category below to continue shopping.
+            </p>
+
+        {% else %}
+
+            <p>
+                Browse products in {{ category.name }}.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         SUBCATEGORIES
+    ====================================================== -->
+
+    {% if subcategories %}
+
+        <div class="shop-category-grid">
+
+            {% for subcategory in subcategories %}
+
+                <a
+                    class="shop-category-card"
+                    href="{% url 'category_products' subcategory.slug %}"
+                >
+
+                    <!-- CATEGORY IMAGE -->
+
+                    <div class="shop-category-image">
+
+                        {% if subcategory.image and subcategory.image.name %}
+
+                            <img
+                                src="{{ subcategory.image.url }}"
+                                alt="{{ subcategory.name }}"
+                                loading="lazy"
+                            >
+
+                        {% else %}
+
+                            <div class="shop-category-placeholder">
+                                {{ subcategory.name|slice:":1"|upper }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- CATEGORY INFORMATION -->
+
+                    <div class="shop-category-content">
+
+                        <div class="shop-category-info">
+
+                            <h3>
+                                {{ subcategory.name }}
+                            </h3>
+
+                            <p>
+                                {{ subcategory.active_product_count }}
+                                product{{ subcategory.active_product_count|pluralize }}
+                            </p>
+
+                        </div>
+
+
+                        <span class="shop-category-arrow">
+                            →
+                        </span>
+
+                    </div>
+
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         PRODUCTS
+    ====================================================== -->
+
+    {% if products %}
+
+        <div class="category-products-title">
+
+            <p class="eyebrow">
+                PRODUCTS
+            </p>
+
+            <h2>
+                {{ category.name }}
+            </h2>
+
+        </div>
+
+
+        <div class="grid">
+
+            {% for product in products %}
+
+                <article class="card">
+
+                    <!-- PRODUCT IMAGE -->
+
+                    <a
+                        class="product-image-link"
+                        href="{% url 'product_detail' product.slug %}"
+                    >
+
+                        {% if product.image and product.image.name %}
+
+                            <img
+                                src="{{ product.image.url }}"
+                                alt="{{ product.name }}"
+                                loading="lazy"
+                            >
+
+                        {% else %}
+
+                            <div class="placeholder">
+                                {{ product.name|slice:":1"|upper }}
+                            </div>
+
+                        {% endif %}
+
+                    </a>
+
+
+                    <!-- PRODUCT INFORMATION -->
+
+                    <div class="card-body">
+
+                        <small>
+
+                            {{ product.category.name }}
+
+                            {% if product.brand %}
+                                · {{ product.brand }}
+                            {% endif %}
+
+                        </small>
+
+
+                        <h3>
+                            {{ product.name }}
+                        </h3>
+
+
+                        <p>
+                            {{ product.description|truncatewords:17 }}
+                        </p>
+
+
+                        <div class="price-row">
+
+                            <strong>
+                                ₹{{ product.price }}
+                            </strong>
+
+
+                            <form
+                                method="post"
+                                action="{% url 'add_cart' product.id %}"
+                            >
+
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="next"
+                                    value="{{ request.get_full_path }}"
+                                >
+
+                                <button
+                                    type="submit"
+
+                                    {% if not product.stock and not product.variants.exists %}
+                                        disabled
+                                    {% endif %}
+                                >
+                                    Add to cart
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         EMPTY CATEGORY
+    ====================================================== -->
+
+    {% if not subcategories and not products %}
+
+        <div class="category-empty">
+
+            <h3>
+                No products yet
+            </h3>
+
+            <p>
+                No subcategories or products have been added to
+                {{ category.name }} yet.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
