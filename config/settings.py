@@ -259,11 +259,7 @@ STORAGES = {
         "BACKEND": MEDIA_STORAGE_BACKEND,
     },
     "staticfiles": {
-        # Temporary workaround for the missing sorting-icons.svg
-        # error in the Render build.
-        "BACKEND": (
-            "whitenoise.storage.CompressedStaticFilesStorage"
-        ),
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
