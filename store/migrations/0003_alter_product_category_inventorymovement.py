@@ -16,7 +16,7 @@ def assign_uncategorized_products(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
+    atomic = False
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('store', '0002_coupon_orderstatushistory_payment_productvariant_and_more'),
