@@ -12,8 +12,9 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Use .env locally. Render supplies its own environment variables.
-load_dotenv(BASE_DIR / ".env.example")
+# Load local development variables.
+# Render environment variables take precedence.
+load_dotenv(BASE_DIR / ".env")
 
 
 # ============================================================
@@ -79,12 +80,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
 
-    # Cloudinary media storage
+    # Cloudinary image storage
     "cloudinary_storage",
 
     "django.contrib.staticfiles",
 
-    # Project applications
+    # NovaCart applications
     "store",
     "knowledge",
 ]
@@ -97,7 +98,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # Serve production static files through WhiteNoise
+    # Serve static CSS, JavaScript and icons on Render
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -144,7 +145,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 
 if DATABASE_URL:
 
-    # Render PostgreSQL connection
+    # Render PostgreSQL
     DATABASES = {
         "default": dj_database_url.config(
             default=DATABASE_URL,
@@ -155,7 +156,7 @@ if DATABASE_URL:
 
 elif os.getenv("POSTGRES_DB"):
 
-    # Optional manually configured PostgreSQL
+    # Optional PostgreSQL configuration
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -169,7 +170,7 @@ elif os.getenv("POSTGRES_DB"):
 
 else:
 
-    # Local development SQLite
+    # Local SQLite database
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -224,7 +225,7 @@ USE_TZ = True
 
 
 # ============================================================
-# STATIC FILES (CSS / JAVASCRIPT / ICONS)
+# STATIC FILES (CSS / JS / ICONS)
 # ============================================================
 
 STATIC_URL = "/static/"
@@ -237,7 +238,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # ============================================================
-# MEDIA FILES (CATEGORY / PRODUCT IMAGES)
+# MEDIA FILES (PRODUCT / CATEGORY IMAGES)
 # ============================================================
 
 MEDIA_URL = "/media/"
@@ -246,41 +247,25 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL", "").strip()
 
-if CLOUDINARY_URL:
+# Cloudinary for production uploads, local filesystem otherwise.
+MEDIA_STORAGE_BACKEND = (
+    "cloudinary_storage.storage.MediaCloudinaryStorage"
+    if CLOUDINARY_URL
+    else "django.core.files.storage.FileSystemStorage"
+)
 
-    # Persistent image storage for Render production
-    STORAGES = {
-        "default": {
-            "BACKEND": (
-                "cloudinary_storage.storage."
-                "MediaCloudinaryStorage"
-            ),
-        },
-        "staticfiles": {
-            "BACKEND": (
-                "whitenoise.storage."
-                "CompressedManifestStaticFilesStorage"
-            ),
-        },
-    }
-
-else:
-
-    # Local image storage
-    STORAGES = {
-        "default": {
-            "BACKEND": (
-                "django.core.files.storage."
-                "FileSystemStorage"
-            ),
-        },
-        "staticfiles": {
-            "BACKEND": (
-                "whitenoise.storage."
-                "CompressedManifestStaticFilesStorage"
-            ),
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": MEDIA_STORAGE_BACKEND,
+    },
+    "staticfiles": {
+        # Temporary workaround for the missing sorting-icons.svg
+        # error in the Render build.
+        "BACKEND": (
+            "whitenoise.storage.CompressedStaticFilesStorage"
+        ),
+    },
+}
 
 
 # ============================================================
@@ -409,7 +394,6 @@ SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
 )
-
 
 
 
