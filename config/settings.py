@@ -256,7 +256,7 @@ STORAGES = {
     "default": {
         "BACKEND": (
             "cloudinary_storage.storage.MediaCloudinaryStorage"
-            if CLOUDINARY_URL
+            if os.getenv("CLOUDINARY_URL")
             else "django.core.files.storage.FileSystemStorage"
         ),
     },
