@@ -252,6 +252,18 @@ MEDIA_STORAGE_BACKEND = (
     else "django.core.files.storage.FileSystemStorage"
 )
 
+# ============================================================
+# STATIC FILES (CSS / JS / ICONS)
+# ============================================================
+
+STATIC_URL = "/static/"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 STORAGES = {
     "default": {
         "BACKEND": (
