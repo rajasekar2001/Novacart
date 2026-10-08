@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load local development variables.
 # Render environment variables take precedence.
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.example")
 
 
 # ============================================================
