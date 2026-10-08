@@ -77,15 +77,12 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-
-    # Cloudinary image storage
-    "cloudinary_storage",
-
     "django.contrib.staticfiles",
-
     # NovaCart applications
     "store",
     "knowledge",
+    # Cloudinary image storage
+    "cloudinary_storage",
 ]
 
 
@@ -223,19 +220,6 @@ USE_TZ = True
 
 
 # ============================================================
-# STATIC FILES (CSS / JS / ICONS)
-# ============================================================
-
-STATIC_URL = "/static/"
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-
-# ============================================================
 # MEDIA FILES (PRODUCT / CATEGORY IMAGES)
 # ============================================================
 
@@ -268,7 +252,7 @@ STORAGES = {
     "default": {
         "BACKEND": (
             "cloudinary_storage.storage.MediaCloudinaryStorage"
-            if os.getenv("CLOUDINARY_URL")
+            if CLOUDINARY_URL
             else "django.core.files.storage.FileSystemStorage"
         ),
     },
