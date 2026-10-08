@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Use .env locally. Render supplies its own environment variables.
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.example")
 
 
 # ============================================================
