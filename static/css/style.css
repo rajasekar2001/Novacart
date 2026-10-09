@@ -8,3 +8,15 @@ nav { align-items:center; }
 .dashboard-cards .panel h2 { font-size:2rem; margin:.4rem 0; }
 .recent-orders { margin-top:18px; }
 @media (max-width:700px) { .dashboard-cards { grid-template-columns:1fr; } }
+
+/* Nova Assistant: always-visible header and accessible close control */
+#chat-panel { max-height: min(560px, calc(100dvh - 115px)); overflow: hidden; border-radius: 14px; }
+#chat-panel .chat-head { display: flex !important; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 76px; padding: 14px 18px; background: #174a3a; color: #fff; position: relative; z-index: 2; }
+#chat-panel .chat-head > div { min-width: 0; }
+#chat-panel .chat-head b { display: block; color: #fff; font-size: 16px; }
+#chat-panel .chat-head small { color: #d2e5da; }
+#chat-panel #chat-close { display: grid !important; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; padding: 0; border: 1px solid #ffffff77; border-radius: 50%; background: #ffffff1f; color: #fff; font-size: 30px; line-height: 1; cursor: pointer; }
+#chat-panel #chat-close:hover, #chat-panel #chat-close:focus-visible { background: #ffffff40; outline-offset: 2px; }
+#chat-panel #chat-log { min-height: 0; flex: 1 1 auto; overflow-y: auto; }
+#chat-panel #chat-form { flex: 0 0 auto; }
+@media (max-width: 480px) { #chat-panel { right: 12px; bottom: 88px; width: calc(100vw - 24px); max-height: calc(100dvh - 104px); } }

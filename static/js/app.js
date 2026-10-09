@@ -6,11 +6,20 @@ const form = select("#chat-form");
 const input = select("#chat-input");
 const log = select("#chat-log");
 
-toggle?.addEventListener("click", () => {
-  panel.classList.remove("hidden");
-  input.focus();
+function setChatOpen(open) {
+  if (!panel) return;
+  panel.classList.toggle("hidden", !open);
+  toggle?.setAttribute("aria-expanded", String(open));
+  if (open) input?.focus();
+  else toggle?.focus();
+}
+toggle?.addEventListener("click", () => setChatOpen(panel?.classList.contains("hidden")));
+closeButton?.addEventListener("click", () => setChatOpen(false));
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && panel && !panel.classList.contains("hidden")) {
+    setChatOpen(false);
+  }
 });
-closeButton?.addEventListener("click", () => panel.classList.add("hidden"));
 
 function csrfToken() {
   return document.cookie
