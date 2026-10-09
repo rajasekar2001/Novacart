@@ -20,3 +20,40 @@ nav { align-items:center; }
 #chat-panel #chat-log { min-height: 0; flex: 1 1 auto; overflow-y: auto; }
 #chat-panel #chat-form { flex: 0 0 auto; }
 @media (max-width: 480px) { #chat-panel { right: 12px; bottom: 88px; width: calc(100vw - 24px); max-height: calc(100dvh - 104px); } }
+
+/* Navigation and chatbot layout fix — keep the navigation accessible. */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+#chat-panel {
+    position: fixed;
+    top: auto;
+    right: 25px;
+    bottom: 100px;
+    width: min(390px, calc(100vw - 30px));
+    height: min(560px, calc(100dvh - 190px));
+    max-height: calc(100dvh - 190px);
+    min-height: 0;
+    z-index: 20;
+    overflow: hidden;
+}
+
+#chat-toggle {
+    z-index: 21;
+}
+
+@media (max-width: 600px) {
+    header { padding-inline: 16px; }
+    nav { gap: 10px; }
+    #chat-panel {
+        right: 12px;
+        bottom: 82px;
+        width: calc(100vw - 24px);
+        height: min(500px, calc(100dvh - 170px));
+        max-height: calc(100dvh - 170px);
+    }
+    #chat-toggle { right: 12px; bottom: 12px; }
+}
