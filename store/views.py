@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q, Sum, Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -222,6 +222,13 @@ def home(request):
             )
         )
         .order_by("name")
+        .prefetch_related(
+            Prefetch(
+                "children",
+                queryset=Category.objects.filter(active=True).order_by("name"),
+                to_attr="visible_children",
+            )
+        )
     )
 
     products = Product.objects.none()

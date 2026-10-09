@@ -2,6 +2,36 @@
 
 {% block content %}
 
+<!-- Scrollable, database-backed category navigation -->
+{% if categories %}
+<section class="category-nav-section" aria-label="Shop by category">
+  <div class="category-nav-track">
+    {% for category in categories %}
+    <div class="category-nav-item">
+      <a class="category-nav-link" href="{% url 'category_products' category.slug %}">
+        <span class="category-nav-image">
+          {% if category.image %}<img src="{{ category.image.url }}" alt="" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('image-unavailable')">
+          {% else %}<span class="category-nav-placeholder">{{ category.name|slice:':1'|upper }}</span>{% endif %}
+        </span>
+        <span class="category-nav-name">{{ category.name }}</span>
+        {% if category.visible_children %}<span class="category-nav-chevron" aria-hidden="true">⌄</span>{% endif %}
+      </a>
+      {% if category.visible_children %}
+      <div class="category-nav-dropdown">
+        <div class="category-nav-dropdown-title">Explore {{ category.name }}</div>
+        <div class="category-nav-subgrid">
+          {% for child in category.visible_children %}
+          <a href="{% url 'category_products' child.slug %}">{{ child.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <section class="hero">
     <div>
         <p class="eyebrow">A smarter way to shop</p>
