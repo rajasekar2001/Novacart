@@ -57,3 +57,24 @@ header {
     }
     #chat-toggle { right: 12px; bottom: 12px; }
 }
+
+
+/* NovaCart category navigation — driven by active root categories and children */
+.category-nav-section { position:relative; z-index:9; background:#fff; border-bottom:1px solid var(--line); }
+.category-nav-track { display:flex; align-items:stretch; gap:clamp(12px,2vw,28px); padding:16px max(20px,5vw); overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; }
+.category-nav-item { position:static; flex:1 0 105px; max-width:160px; text-align:center; }
+.category-nav-link { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:7px; min-height:120px; color:var(--ink); text-decoration:none; font-size:13px; font-weight:750; }
+.category-nav-image { width:76px; height:76px; border-radius:50%; overflow:hidden; border:2px solid #e8eddc; background:#edf4e2; display:grid; place-items:center; flex-shrink:0; }
+.category-nav-image img { width:100%; height:100%; object-fit:cover; }
+.category-nav-placeholder { font:700 34px Georgia,serif; color:var(--green); }
+.category-nav-image.image-unavailable::after { content:'◈'; font:700 30px Georgia,serif; color:var(--green); }
+.category-nav-name { line-height:1.25; }
+.category-nav-chevron { font-size:17px; line-height:10px; }
+.category-nav-link:hover .category-nav-name,.category-nav-link:focus-visible .category-nav-name { color:var(--green); text-decoration:underline; }
+.category-nav-dropdown { display:none; position:absolute; top:100%; left:5vw; right:5vw; z-index:50; padding:22px 26px; background:white; border:1px solid var(--line); box-shadow:0 16px 30px #0002; border-radius:0 0 14px 14px; text-align:left; max-height:50vh; overflow-y:auto; }
+.category-nav-item:hover .category-nav-dropdown,.category-nav-item:focus-within .category-nav-dropdown { display:block; }
+.category-nav-dropdown-title { font-size:15px; font-weight:800; margin-bottom:15px; color:var(--green); }
+.category-nav-subgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:13px 22px; }
+.category-nav-subgrid a { color:var(--ink); text-decoration:none; font-size:14px; }
+.category-nav-subgrid a:hover,.category-nav-subgrid a:focus-visible { color:var(--green); text-decoration:underline; }
+@media(max-width:700px) { .category-nav-track { gap:12px; padding:12px 14px; } .category-nav-item { flex-basis:94px; } .category-nav-link { font-size:12px; min-height:108px; } .category-nav-image { width:65px; height:65px; } .category-nav-dropdown { left:8px; right:8px; padding:15px; } }
