@@ -2166,12 +2166,17 @@ def answer_from_live_commerce(question, user=None):
             answer_text += f" Tracking number: {shipment.tracking_number}."
         return answer_text, [f"/orders/{order.public_id}/"]
 
-    products = Product.objects.filter(active=True).select_related("category").prefetch_related("variants")
+    products = Product.objects.filter(
+        active=True, catalog_status="published", category__active=True
+    ).select_related("category").prefetch_related("variants")
     categories = list(Category.objects.filter(active=True))
     category = best_match(question, [item.name for item in categories], minimum_score=0.72)
     product_names = list(products.values_list("name", flat=True))
     product_name = best_match(question, product_names, minimum_score=0.72)
-    variants = ProductVariant.objects.filter(active=True, product__active=True).select_related("product")
+    variants = ProductVariant.objects.filter(
+        active=True, product__active=True, product__catalog_status="published",
+        product__category__active=True,
+    ).select_related("product")
     variant_names = list(variants.values_list("name", flat=True))
     variant_name = best_match(question, variant_names, minimum_score=0.78)
     wants_list = is_list_query(question)
@@ -2231,6 +2236,48 @@ def answer_from_live_commerce(question, user=None):
         if selected:
             lines = [f"- {item.name}: INR {item.price}" for item in selected]
             return "Matching products:\n" + "\n".join(lines), [f"/product/{item.slug}/" for item in selected]
+    # Treat a bare product/brand/category name as a catalog lookup.
+    # Keep policy, delivery and other informational questions in the FAQ flow.
+    catalog_terms = {"product", "products", "category", "categories", "brand", "brands", "shop", "catalog", "item", "items", "buy", "purchase", "stock"}
+    tokens = set(re.findall(r"[\w]+", value))
+    question_words = {"what", "which", "do", "does", "is", "are", "have", "show", "list", "find", "any", "available", "sell", "price", "cost", "of", "the", "a", "an", "you", "your", "in", "for", "me", "please"}
+    catalog_query = (
+        bool(tokens & catalog_terms)
+        or (bool(tokens) and len(tokens) <= 3 and not tokens & {"hello", "hi", "hey", "thanks", "thank", "delivery", "shipping", "return", "refund", "policy", "payment", "contact", "help", "order", "track"})
+        or (bool(tokens & {"price", "cost", "available", "sell"}) and bool(tokens - question_words))
+    )
+    if catalog_query:
+        # Search exact names, brands, and categories first; don't substitute
+        # a similarly named but different product.
+        search_terms = [t for t in tokens if t not in question_words and t not in catalog_terms and len(t) > 1]
+        matching = products.none()
+        if search_terms:
+            criteria = Q()
+            for term in search_terms:
+                criteria |= (Q(name__icontains=term) | Q(brand__icontains=term) | Q(category__name__icontains=term))
+            matching = products.filter(criteria).distinct()
+        if category and not search_terms:
+            matching = products.filter(category__name=category)
+        selected = list(matching[:8])
+        if selected:
+            lines = [f"- {p.name}: INR {p.price} ({p.available_stock} in stock)" for p in selected]
+            return "Matching NovaCart products:\n" + "\n".join(lines), [f"/product/{p.slug}/" for p in selected]
+
+        alternatives = list(products.order_by("name")[:5])
+        available_categories = categories[:8]
+        lines = [f"Sorry, I couldn't find '{clean(question)}' in our current catalog."]
+        sources = []
+        if alternatives:
+            lines.append("Here are products you can explore:")
+            for p in alternatives:
+                lines.append(f"- {p.name}: INR {p.price} ({p.available_stock} in stock)")
+                sources.append(f"/product/{p.slug}/")
+        if available_categories:
+            lines.append("Available categories: " + ", ".join(c.name for c in available_categories))
+            sources.extend(f"/category/{c.slug}/" for c in available_categories)
+        if not alternatives and not available_categories:
+            lines.append("No products or categories are currently available.")
+        return "\n".join(lines), sources
     return None
 
 
