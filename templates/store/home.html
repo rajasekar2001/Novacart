@@ -5,7 +5,8 @@
 <!-- Scrollable, database-backed category navigation -->
 {% if categories %}
 <section class="category-nav-section" aria-label="Shop by category">
-  <div class="category-nav-track">
+  <button type="button" class="category-scroll-btn category-scroll-left" id="category-scroll-left" aria-label="Scroll categories left" aria-controls="category-nav-track">&#10094;</button>
+  <div class="category-nav-track" id="category-nav-track" tabindex="0" aria-label="Categories, scroll horizontally">
     {% for category in categories %}
     <div class="category-nav-item">
       <a class="category-nav-link" href="{% url 'category_products' category.slug %}">
@@ -14,7 +15,7 @@
           {% else %}<span class="category-nav-placeholder">{{ category.name|slice:':1'|upper }}</span>{% endif %}
         </span>
         <span class="category-nav-name">{{ category.name }}</span>
-        {% if category.visible_children %}<span class="category-nav-chevron" aria-hidden="true">⌄</span>{% endif %}
+        <span class="category-nav-chevron" aria-hidden="true">⌄</span>
       </a>
       {% if category.visible_children %}
       <div class="category-nav-dropdown">
@@ -29,6 +30,7 @@
     </div>
     {% endfor %}
   </div>
+  <button type="button" class="category-scroll-btn category-scroll-right" id="category-scroll-right" aria-label="Scroll categories right" aria-controls="category-nav-track">&#10095;</button>
 </section>
 {% endif %}
 

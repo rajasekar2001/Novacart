@@ -13,6 +13,7 @@ function setChatOpen(open) {
   if (open) input?.focus();
   else toggle?.focus();
 }
+
 toggle?.addEventListener("click", () => setChatOpen(panel?.classList.contains("hidden")));
 closeButton?.addEventListener("click", () => setChatOpen(false));
 document.addEventListener("keydown", (event) => {
@@ -79,4 +80,36 @@ form?.addEventListener("submit", async (event) => {
     input.disabled = false;
     input.focus();
   }
+});
+
+/* Category strip: scroll by buttons, keyboard, touch, or trackpad. */
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.getElementById("category-nav-track");
+  const left = document.getElementById("category-scroll-left");
+  const right = document.getElementById("category-scroll-right");
+  if (!track || !left || !right) return;
+
+  const updateButtons = () => {
+    const max = Math.max(0, track.scrollWidth - track.clientWidth);
+    const hasOverflow = max > 2;
+    left.hidden = !hasOverflow;
+    right.hidden = !hasOverflow;
+    left.disabled = track.scrollLeft <= 2;
+    right.disabled = track.scrollLeft >= max - 2;
+  };
+
+  const scrollCategories = (direction) => {
+    const distance = Math.max(200, track.clientWidth * 0.7);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.scrollBy({left: direction * distance, behavior: reduceMotion ? "auto" : "smooth"});
+  };
+
+  left.addEventListener("click", () => scrollCategories(-1));
+  right.addEventListener("click", () => scrollCategories(1));
+  track.addEventListener("scroll", updateButtons, {passive: true});
+  window.addEventListener("resize", updateButtons);
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(updateButtons).observe(track);
+  }
+  updateButtons();
 });
