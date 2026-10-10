@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Count, Q, Sum, Prefetch
+from django.db.models.deletion import ProtectedError, RestrictedError
+from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -222,13 +223,6 @@ def home(request):
             )
         )
         .order_by("name")
-        .prefetch_related(
-            Prefetch(
-                "children",
-                queryset=Category.objects.filter(active=True).order_by("name"),
-                to_attr="visible_children",
-            )
-        )
     )
 
     products = Product.objects.none()
@@ -792,3 +786,29 @@ def admin_inventory(request):
             "reason": movement.reason,
         },
     })
+
+
+@staff_member_required
+@require_POST
+def admin_category_delete(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    if category.products.exists():
+        return JsonResponse({"ok": False, "errors": {"category": ["Move or delete products in this category before deleting it."]}}, status=409)
+    if category.children.exists():
+        return JsonResponse({"ok": False, "errors": {"category": ["Move or delete child categories before deleting this category."]}}, status=409)
+    try:
+        category.delete()
+    except (ProtectedError, RestrictedError):
+        return JsonResponse({"ok": False, "errors": {"category": ["This category is referenced by other records and cannot be deleted."]}}, status=409)
+    return JsonResponse({"ok": True})
+
+
+@staff_member_required
+@require_POST
+def admin_product_delete(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    try:
+        product.delete()
+    except (ProtectedError, RestrictedError):
+        return JsonResponse({"ok": False, "errors": {"product": ["This product is referenced by orders or other records. Hide/deactivate it instead to preserve purchase history."]}}, status=409)
+    return JsonResponse({"ok": True})

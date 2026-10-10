@@ -84,6 +84,34 @@
     row.appendChild(column);
   }
 
+  function addDeleteAction(row, kind, item) {
+    // Append to the same Actions cell as Edit.
+    const column = row.lastElementChild;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "row-action row-action-delete";
+    button.textContent = "Delete";
+    button.setAttribute("aria-label", `Delete ${kind} ${item.name}`);
+    button.addEventListener("click", async () => {
+      const warning = kind === "product"
+        ? `Delete product "${item.name}"? This cannot be undone.`
+        : `Delete category "${item.name}"? This is only allowed when it has no products or child categories.`;
+      if (!window.confirm(warning)) return;
+      const base = kind === "product" ? urls.products : urls.categories;
+      try {
+        button.disabled = true;
+        await api(`${base}${base.endsWith("/") ? "" : "/"}${item.id}/delete/`, {method: "POST"});
+        notify(`${kind === "product" ? "Product" : "Category"} deleted.`);
+        await loadCategories();
+        await loadProducts();
+      } catch (error) {
+        notify(error.message, true);
+        button.disabled = false;
+      }
+    });
+    column.appendChild(button);
+  }
+
   function fillCategorySelects() {
     const fields = [
       document.querySelector("#category-form select[name='parent_id']"),
@@ -140,6 +168,7 @@
       cell(row, category.product_count);
       cell(row, category.active ? "Active" : "Hidden");
       actionCell(row, "Edit", () => editCategory(category));
+      addDeleteAction(row, "category", category);
       body.appendChild(row);
     });
   }
@@ -249,6 +278,7 @@
       cell(row, `₹${product.price}`);
       cell(row, product.available_stock);
       actionCell(row, "Edit", () => editProduct(product));
+      addDeleteAction(row, "product", product);
       body.appendChild(row);
     });
   }

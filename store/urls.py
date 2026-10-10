@@ -16,6 +16,8 @@ urlpatterns = [
         name="admin_category_detail",
     ),
     path("dashboard/products/", views.admin_products, name="admin_products"),
+    path("dashboard/categories/<int:category_id>/delete/", views.admin_category_delete, name="admin_category_delete"),
+    path("dashboard/products/<int:product_id>/delete/", views.admin_product_delete, name="admin_product_delete"),
     path("dashboard/products/ai-draft/", views.admin_ai_product_draft, name="admin_ai_product_draft"),
     path("dashboard/ai/category-plan/", views.admin_ai_category_plan, name="admin_ai_category_plan"),
     path("dashboard/ai/quality/", views.admin_quality_insights, name="admin_quality_insights"),
