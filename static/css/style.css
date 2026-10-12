@@ -173,3 +173,36 @@ header nav { flex: 0 0 auto; }
 .specification-row dt { background: #f1f5ed; color: var(--green); font-weight: 700; }
 .specification-row dd { color: var(--ink); }
 @media (max-width: 520px) { .specification-row { grid-template-columns: 1fr; } .specification-row dt { padding-bottom: 6px; } .specification-row dd { padding-top: 7px; } }
+
+
+/* Product detail: keep photo visible while the right column scrolls */
+@media (min-width: 801px) {
+  .product-view { align-items: start; }
+  .product-image-column {
+    position: sticky;
+    top: 94px; /* 74px sticky header + 20px spacing */
+    align-self: start;
+    min-width: 0;
+  }
+  .product-info-column { min-width: 0; overflow-wrap: anywhere; }
+  .product-image-column > img,
+  .product-image-column > .placeholder.large {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 114px);
+    object-fit: contain;
+    background: #fff;
+  }
+}
+@media (max-width: 800px) {
+  .product-image-column { position: static; }
+  .product-image-column > img,
+  .product-image-column > .placeholder.large {
+    width: 100%;
+    height: auto;
+    max-height: 65dvh;
+    object-fit: contain;
+    background: #fff;
+  }
+}

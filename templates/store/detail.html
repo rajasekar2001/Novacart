@@ -1,6 +1,6 @@
 {% extends 'base.html' %}{% load product_specs %}{% block title %}{{ product.name }} · NovaCart{% endblock %}{% block content %}<section class="product-view">
-<div>{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="placeholder large">{{ product.name|slice:':1' }}</div>{% endif %}</div>
-<div>
+<div class="product-image-column">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="placeholder large">{{ product.name|slice:':1' }}</div>{% endif %}</div>
+<div class="product-info-column">
 <p class="eyebrow">{{ product.category }}</p>
 <h1>{{ product.name }}</h1>{% if product.brand %}<p>{{ product.brand }}</p>{% endif %}<p class="lead">{{ product.description }}</p>
 <h2>From ₹{{ product.price }}</h2>
