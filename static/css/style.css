@@ -161,3 +161,15 @@ header nav { flex: 0 0 auto; }
 .row-action-delete { margin-left: 8px; color: #a92323; border-color: #e7b3b3; }
 .row-action-delete:hover { background: #fff0f0; }
 @media(max-width:900px) { header { height: auto; min-height: 74px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; } .site-search { order: 3; flex: 1 0 100%; max-width: none; } header nav { gap: 12px; flex-wrap: wrap; } }
+
+
+/* Product specifications: readable nested data, not raw JSON */
+.product-specifications { margin-top: 30px; }
+.product-specifications h3 { font: 28px Georgia,serif; margin: 0 0 16px; }
+.specification-list { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+.specification-row { display: grid; grid-template-columns: minmax(130px, 36%) minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+.specification-row:last-child { border-bottom: 0; }
+.specification-row dt, .specification-row dd { margin: 0; padding: 13px 16px; line-height: 1.55; overflow-wrap: anywhere; }
+.specification-row dt { background: #f1f5ed; color: var(--green); font-weight: 700; }
+.specification-row dd { color: var(--ink); }
+@media (max-width: 520px) { .specification-row { grid-template-columns: 1fr; } .specification-row dt { padding-bottom: 6px; } .specification-row dd { padding-top: 7px; } }
