@@ -121,7 +121,47 @@
     Save category
   </button>
 </form>
-        <article class="admin-card"><div class="table-tools"><input id="category-search" placeholder="Search categories"></div><div class="admin-table-wrap"><table><thead><tr><th>Image</th><th>Category</th><th>Parent</th><th>Products</th><th>Status</th><th></th></tr></thead><tbody id="category-rows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></article>
+        {% comment %} <article class="admin-card"><div class="table-tools"><input id="category-search" placeholder="Search categories"></div><div class="admin-table-wrap"><table><thead><tr><th>Image</th><th>Category</th><th>Parent</th><th>Products</th><th>Status</th><th></th></tr></thead><tbody id="category-rows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></article> {% endcomment %}
+        <article class="admin-card category-list-card">
+
+        <div class="table-tools">
+            <input
+                id="category-search"
+                type="search"
+                placeholder="Search categories"
+                aria-label="Search categories"
+            >
+        </div>
+
+        <div
+            class="category-table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Scrollable category list"
+        >
+            <div class="admin-table-wrap">
+                <table class="category-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Category</th>
+                            <th>Parent</th>
+                            <th>Products</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="category-rows">
+                        <tr>
+                            <td colspan="6">Loading categories...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </article>
       </div>
     </section>
 
@@ -138,8 +178,8 @@
         <div id="ai-draft-summary" class="ai-draft-summary" hidden></div>
       </article>
       <div class="admin-columns form-layout">
-        <form class="admin-card admin-form" id="product-form" enctype="multipart/form-data"><input type="hidden" name="product_id"><input type="hidden" name="ingestion_source" value="manual"><input type="hidden" name="ai_confidence"><input type="hidden" name="ai_missing_fields"><input type="hidden" name="ai_warnings"><h3 id="product-form-title">Add product</h3><div class="form-grid"><label>Product name<input name="name" placeholder="Gold Necklace" required></label><label>Category<select name="category_id" required><option value="">Select category</option></select></label><label>SKU<input name="sku" placeholder="JWL-GN-001"></label><label>Brand<input name="brand" placeholder="Nova Jewels"></label><label>Price<input name="price" type="number" min="0" step="0.01" required></label><label>Base stock<input name="stock" type="number" min="0" required></label></div><label>Description<textarea name="description" rows="3" required></textarea></label><label>Specifications (JSON)<textarea name="specifications" rows="3" placeholder='{"material":"22K Gold","weight":"15 g"}'></textarea></label><label>Image<input name="image" type="file" accept="image/*"></label><label>Catalog status<select name="catalog_status"><option value="published">Published</option><option value="draft">Draft — review required</option></select></label><div class="checks"><label class="check"><input type="checkbox" name="active" checked> Visible in storefront</label><label class="check"><input type="checkbox" name="featured"> Featured</label></div><button class="admin-primary">Save product</button></form>
-        <article class="admin-card"><div class="table-tools"><input id="product-search" placeholder="Search name, SKU, brand"><select id="product-category-filter"><option value="">All categories</option></select></div><div class="admin-table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead><tbody id="product-rows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></article>
+        <form class="admin-card admin-form" id="product-form" enctype="multipart/form-data"><input type="hidden" name="product_id"><input type="hidden" name="ingestion_source" value="manual"><input type="hidden" name="ai_confidence"><input type="hidden" name="ai_missing_fields"><input type="hidden" name="ai_warnings"><h3 id="product-form-title">Add product</h3><div class="form-grid"><label>Product name<input name="name" placeholder="Gold Necklace" required></label><label>Category<select name="category_id" required><option value="">Select category</option></select></label><label>SKU<input name="sku" placeholder="JWL-GN-001"></label><label>Brand<input name="brand" placeholder="Nova Jewels"></label><label>Price<input name="price" type="number" min="0" step="0.01" required></label><label>Base stock<input name="stock" type="number" min="0" required></label></div><label>Description<textarea name="description" rows="3" required></textarea></label><label>Specifications<textarea name="specifications" rows="5" placeholder="Color: Gray&#10;RAM: 8GB&#10;Storage: 256GB&#10;Battery: 8000mAh"></textarea></label><label>Image<input name="image" type="file" accept="image/*"></label><label>Catalog status<select name="catalog_status"><option value="published">Published</option><option value="draft">Draft — review required</option></select></label><div class="checks"><label class="check"><input type="checkbox" name="active" checked> Visible in storefront</label><label class="check"><input type="checkbox" name="featured"> Featured</label></div><button class="admin-primary">Save product</button></form>
+        <article class="admin-card"><div class="table-tools"><input id="product-search" placeholder="Search name, SKU, brand"><select id="product-category-filter"><option value="">All categories</option></select></div><div class="admin-table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="product-rows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></article>
       </div>
       <article class="admin-card variant-card"><div class="card-title"><div><p class="admin-kicker">OPTIONAL</p><h3>Product variants</h3></div></div><form class="variant-form" id="variant-form"><input type="hidden" name="variant_id"><label>Product<select name="product_id" required><option value="">Select product</option></select></label><label>Variant name<input name="name" placeholder="18 inch / Rose Gold" required></label><label>SKU<input name="sku" required></label><label>Price override<input name="price" type="number" min="0" step="0.01"></label><label>Stock<input name="stock" type="number" min="0" value="0" required></label><label>Options JSON<input name="options" placeholder='{"size":"18 inch"}'></label><label class="check"><input type="checkbox" name="active" checked> Active</label><button class="admin-primary">Save variant</button></form></article>
     </section>

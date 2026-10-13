@@ -264,6 +264,51 @@ def json_object(value, field_name="specifications"):
     return parsed
 
 
+def parse_product_specifications(value):
+    """Accept JSON objects, label/value lines, or free-form product notes."""
+    if value is None or value == "":
+        return {}
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, (list, tuple)):
+        return {"Details": list(value)}
+    text = str(value).strip()
+    if not text:
+        return {}
+    try:
+        parsed = json.loads(text)
+    except (ValueError, TypeError):
+        parsed = None
+    if isinstance(parsed, dict):
+        return parsed
+    if isinstance(parsed, list):
+        return {"Details": parsed}
+    if isinstance(parsed, str):
+        text = parsed.strip()
+
+    # Each line can be "Color: Gray", "RAM - 8GB", or a simple note.
+    lines = [line.strip().lstrip("•*- \t") for line in text.splitlines() if line.strip()]
+    result = {}
+    notes = []
+    for line in lines:
+        match = re.match(r"^([^:：\n]{1,75})\s*[:：]\s*(.+)$", line)
+        if not match:
+            match = re.match(r"^(.{1,75}?)\s+[-–—]\s+(.+)$", line)
+        if match:
+            key, detail = match.group(1).strip(), match.group(2).strip()
+            if key and detail:
+                if key in result:
+                    existing = result[key]
+                    result[key] = f"{existing}; {detail}"
+                else:
+                    result[key] = detail
+                continue
+        notes.append(line)
+    if notes:
+        result["Additional details"] = "\n".join(notes)
+    return result
+
+
 def unique_slug(model, value, instance=None):
     base = slugify(value) or "item"
     candidate = base
@@ -316,7 +361,7 @@ def save_product(data, product=None):
     product.sku = str(data.get("sku", "")).strip()
     product.brand = str(data.get("brand", "")).strip()
     product.description = str(data.get("description", "")).strip()
-    product.specifications = json_object(data.get("specifications"))
+    product.specifications = parse_product_specifications(data.get("specifications"))
     product.price = as_money(data.get("price"))
     product.stock = as_non_negative_int(data.get("stock", 0))
     product.active = as_bool(data.get("active"), default=True)

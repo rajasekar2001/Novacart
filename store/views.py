@@ -6,7 +6,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models.deletion import ProtectedError, RestrictedError
 from django.db.models import Count, Q, Sum
 from django.http import JsonResponse
@@ -17,7 +17,6 @@ from .forms import CheckoutForm, CustomerRegistrationForm
 from .models import Category, Order, OrderItem, OrderStatusHistory, Payment, Product, ProductVariant
 from .service import adjust_inventory, lookup_indian_pincode, save_category, save_product, save_variant
 from .ai_catalog import generate_product_draft, product_quality, suggest_category_plan
-
 
 def _request_data(request):
     if request.content_type == "application/json":
@@ -570,14 +569,17 @@ def admin_categories(request):
 #         return _validation_response(exc)
 #     return JsonResponse({"ok": True, "category": _category_json(category)})
 
+
 @staff_member_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET", "POST", "DELETE"])
 def admin_category_detail(request, category_id):
+
     category = get_object_or_404(
         Category.objects.select_related("parent"),
         pk=category_id
     )
 
+    # GET - View category details
     if request.method == "GET":
         products = (
             category.products
@@ -594,6 +596,47 @@ def admin_category_detail(request, category_id):
             ],
         })
 
+    # DELETE - Delete an empty category
+    if request.method == "DELETE":
+
+        if Category.objects.filter(parent=category).exists():
+            return JsonResponse({
+                "ok": False,
+                "errors": {
+                    "category": (
+                        "Cannot delete this category because it contains "
+                        "subcategories. Delete or move them first."
+                    )
+                }
+            }, status=400)
+
+        if Product.objects.filter(category=category).exists():
+            return JsonResponse({
+                "ok": False,
+                "errors": {
+                    "category": (
+                        "Cannot delete this category because it contains "
+                        "products. Delete or move them first."
+                    )
+                }
+            }, status=400)
+
+        try:
+            category.delete()
+        except (ProtectedError, RestrictedError):
+            return JsonResponse({
+                "ok": False,
+                "errors": {
+                    "category": "This category is referenced by other records."
+                }
+            }, status=409)
+
+        return JsonResponse({
+            "ok": True,
+            "message": "Category deleted successfully."
+        })
+
+    # POST - Update category
     try:
         data = _request_data(request)
 
@@ -602,7 +645,6 @@ def admin_category_detail(request, category_id):
             category=category
         )
 
-        # SAVE UPLOADED IMAGE
         uploaded_image = request.FILES.get("image")
 
         if uploaded_image:
@@ -616,6 +658,150 @@ def admin_category_detail(request, category_id):
         "ok": True,
         "category": _category_json(category)
     })
+
+
+# @staff_member_required
+# @require_http_methods(["GET", "POST", "DELETE"])
+# def admin_category_detail(request, category_id):
+
+#     category = get_object_or_404(
+#         Category.objects.select_related("parent"),
+#         pk=category_id
+#     )
+
+#     # ------------------------------------
+#     # GET - View category details
+#     # ------------------------------------
+#     if request.method == "GET":
+
+#         products = (
+#             category.products
+#             .prefetch_related("variants")
+#             .order_by("name")
+#         )
+
+#         return JsonResponse({
+#             "ok": True,
+#             "category": _category_json(category),
+#             "products": [
+#                 _product_json(product)
+#                 for product in products
+#             ],
+#         })
+
+#     # ------------------------------------
+#     # DELETE - Delete category
+#     # ------------------------------------
+#     if request.method == "DELETE":
+
+#         # Do not delete categories containing subcategories.
+#         if Category.objects.filter(parent=category).exists():
+
+#             return JsonResponse({
+#                 "ok": False,
+#                 "errors": {
+#                     "category": (
+#                         "Cannot delete this category because "
+#                         "it contains subcategories. "
+#                         "Delete or move the subcategories first."
+#                     )
+#                 }
+#             }, status=400)
+
+#         # Do not delete categories containing products.
+#         if Product.objects.filter(category=category).exists():
+
+#             return JsonResponse({
+#                 "ok": False,
+#                 "errors": {
+#                     "category": (
+#                         "Cannot delete this category because "
+#                         "it contains products. "
+#                         "Delete or move the products first."
+#                     )
+#                 }
+#             }, status=400)
+
+#         # Delete the empty category.
+#         category.delete()
+
+#         return JsonResponse({
+#             "ok": True,
+#             "message": "Category deleted successfully."
+#         })
+
+#     # ------------------------------------
+#     # POST - Update category
+#     # ------------------------------------
+#     try:
+#         data = _request_data(request)
+
+#         category = save_category(
+#             data,
+#             category=category
+#         )
+
+#         # Save uploaded image.
+#         uploaded_image = request.FILES.get("image")
+
+#         if uploaded_image:
+#             category.image = uploaded_image
+#             category.save(update_fields=["image"])
+
+#     except ValidationError as exc:
+#         return _validation_response(exc)
+
+#     return JsonResponse({
+#         "ok": True,
+#         "category": _category_json(category)
+#     })
+    
+# @staff_member_required
+# @require_http_methods(["GET", "POST"])
+# def admin_category_detail(request, category_id):
+#     category = get_object_or_404(
+#         Category.objects.select_related("parent"),
+#         pk=category_id
+#     )
+
+#     if request.method == "GET":
+#         products = (
+#             category.products
+#             .prefetch_related("variants")
+#             .order_by("name")
+#         )
+
+#         return JsonResponse({
+#             "ok": True,
+#             "category": _category_json(category),
+#             "products": [
+#                 _product_json(product)
+#                 for product in products
+#             ],
+#         })
+
+#     try:
+#         data = _request_data(request)
+
+#         category = save_category(
+#             data,
+#             category=category
+#         )
+
+#         # SAVE UPLOADED IMAGE
+#         uploaded_image = request.FILES.get("image")
+
+#         if uploaded_image:
+#             category.image = uploaded_image
+#             category.save(update_fields=["image"])
+
+#     except ValidationError as exc:
+#         return _validation_response(exc)
+
+#     return JsonResponse({
+#         "ok": True,
+#         "category": _category_json(category)
+#     })
 
 
 @staff_member_required
@@ -713,27 +899,105 @@ def admin_products(request):
         return _validation_response(exc)
     return JsonResponse({"ok": True, "product": _product_json(product)}, status=201)
 
-
 @staff_member_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET", "POST", "DELETE"])
 def admin_product_detail(request, product_id):
+
     product = get_object_or_404(
-        Product.objects.select_related("category").prefetch_related("variants"), pk=product_id
+        Product.objects.select_related("category"),
+        pk=product_id
     )
+
+    # ==========================================
+    # GET - VIEW PRODUCT DETAILS
+    # ==========================================
     if request.method == "GET":
-        return JsonResponse({"ok": True, "product": _product_json(product)})
+
+        return JsonResponse({
+            "ok": True,
+            "product": _product_json(product)
+        })
+
+    # ==========================================
+    # DELETE - DELETE PRODUCT
+    # ==========================================
+    if request.method == "DELETE":
+
+        # IMPORTANT:
+        # Product deletion can also delete related records
+        # when foreign keys use on_delete=CASCADE.
+        # Verify order relationships before allowing this.
+
+        try:
+            with transaction.atomic():
+                product_name = product.name
+                product.delete()
+
+        except (ProtectedError, RestrictedError, IntegrityError):
+            return JsonResponse({
+                "ok": False,
+                "errors": {
+                    "product": (
+                        "This product is referenced by other records "
+                        "and cannot be safely deleted. "
+                        "Deactivate the product instead."
+                    )
+                }
+            }, status=409)
+
+        return JsonResponse({
+            "ok": True,
+            "message": (
+                f'Product "{product_name}" deleted successfully.'
+            )
+        })
+
+    # ==========================================
+    # POST - UPDATE PRODUCT
+    # ==========================================
     try:
-        product = save_product(_request_data(request), product=product)
-        if product.ingestion_source == "ai" and product.catalog_status == "published":
-            product.reviewed_by = request.user
-            product.reviewed_at = timezone.now()
-            product.save(update_fields=["reviewed_by", "reviewed_at", "updated_at"])
-        if request.FILES.get("image"):
-            product.image = request.FILES["image"]
-            product.save(update_fields=["image", "updated_at"])
+        data = _request_data(request)
+
+        product = save_product(
+            data,
+            product=product
+        )
+
+        uploaded_image = request.FILES.get("image")
+
+        if uploaded_image:
+            product.image = uploaded_image
+            product.save(update_fields=["image"])
+
     except ValidationError as exc:
         return _validation_response(exc)
-    return JsonResponse({"ok": True, "product": _product_json(product)})
+
+    return JsonResponse({
+        "ok": True,
+        "product": _product_json(product)
+    })
+
+
+# @staff_member_required
+# @require_http_methods(["GET", "POST"])
+# def admin_product_detail(request, product_id):
+#     product = get_object_or_404(
+#         Product.objects.select_related("category").prefetch_related("variants"), pk=product_id
+#     )
+#     if request.method == "GET":
+#         return JsonResponse({"ok": True, "product": _product_json(product)})
+#     try:
+#         product = save_product(_request_data(request), product=product)
+#         if product.ingestion_source == "ai" and product.catalog_status == "published":
+#             product.reviewed_by = request.user
+#             product.reviewed_at = timezone.now()
+#             product.save(update_fields=["reviewed_by", "reviewed_at", "updated_at"])
+#         if request.FILES.get("image"):
+#             product.image = request.FILES["image"]
+#             product.save(update_fields=["image", "updated_at"])
+#     except ValidationError as exc:
+#         return _validation_response(exc)
+#     return JsonResponse({"ok": True, "product": _product_json(product)})
 
 
 @staff_member_required
